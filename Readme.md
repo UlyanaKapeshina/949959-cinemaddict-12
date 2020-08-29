@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
-* Студент: [Ульяна Капешина](https://up.htmlacademy.ru/ecmascript/12/user/949959).
-* Наставник: `Неизвестно`.
+- Студент: [Ульяна Капешина](https://up.htmlacademy.ru/ecmascript/12/user/949959).
+- Наставник: `Нет`.
 
 ---
 
