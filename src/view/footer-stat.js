@@ -1,5 +1,6 @@
-export const createFooterStatTemplate = () => {
+
+export const createFooterStatTemplate = (count) => {
   return `<section class="footer__statistics">
-  <p>130 291 movies inside</p>
+  <p>${count.toString().replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, `$1 `)} movies inside</p>
 </section>`;
 };
