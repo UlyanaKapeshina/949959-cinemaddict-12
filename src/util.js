@@ -19,3 +19,25 @@ export const getRandomArray = (arr, maxLength) => {
 export const getRandomDate = (start, end) => {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 };
+export const RENDER_POSITION = {
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`,
+  AFTEREND: `afterend`
+};
+
+export const render = (container, element, place) => {
+  switch (place) {
+    case RENDER_POSITION.AFTERBEGIN:
+      container.prepend(element);
+      break;
+    case RENDER_POSITION.AFTEREND:
+      container.after(element);
+      break;
+    case RENDER_POSITION.BEFOREEND:
+      container.append(element);
+      break;
+  }
+};
+export const remove = function (container, element) {
+  container.removeChild(element);
+};

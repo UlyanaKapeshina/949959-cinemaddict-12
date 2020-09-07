@@ -1,6 +1,6 @@
-export default class ProfileView {
-  constructor(ratingName) {
-    this._ratingName = ratingName;
+export default class FilmsListExtraView {
+  constructor(title) {
+    this._title = title;
     this._element = null;
   }
   get element() {
@@ -18,9 +18,9 @@ export default class ProfileView {
     this._element = null;
   }
   createTemplate() {
+    return `<section class="films-list--extra">
+    <h2 class="films-list__title">${this._title}</h2>
 
-    return `${this._ratingName ? `<section class="header__profile profile"><p class="profile__rating">${this._ratingName}</p><img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-    </section>` : ``}
-    `;
+  </section>`;
   }
 }

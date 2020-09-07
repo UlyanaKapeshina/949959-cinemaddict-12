@@ -1,6 +1,6 @@
-export default class TitleView {
-  constructor(filmsCount) {
-    this._filmsCount = filmsCount;
+export default class TitleNoFilmsView {
+  constructor() {
+
     this._element = null;
   }
   get element() {
@@ -15,7 +15,6 @@ export default class TitleView {
     this._element = null;
   }
   createTemplate() {
-    return `<h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>`;
+    return `<h2 class="films-list__title">There are no movies in our database</h2>`;
   }
 }
-
