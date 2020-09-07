@@ -67,6 +67,14 @@ const renderFilm = (film, filmsListContainer) => {
   cardComments.addEventListener(`click`, () => {
     openFilmPopup();
   });
+  const onEscPress = (evt) => {
+    if (evt.key === `Escape`) {
+      evt.preventDefault();
+      closeFilmPopup();
+      document.removeEventListener(`keydown`, onEscPress);
+    }
+  };
+  document.addEventListener(`keydown`, onEscPress);
   render(filmsListContainer, FilmCardComponent.element, RENDER_POSITION.BEFOREEND);
 };
 
