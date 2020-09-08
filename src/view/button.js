@@ -1,25 +1,23 @@
-export default class ButtonView {
-  constructor(ratingName) {
-    this._ratingName = ratingName;
-    this._element = null;
+import Abstract from "./abstract";
+
+export default class ButtonView extends Abstract {
+  constructor() {
+    super();
+    this._clickHandlerBind = this._clickHandler.bind(this);
   }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
-    }
-    return this._element;
+  setClickHandler(callback) {
+
+    this._callback.click = callback;
+    this.element.addEventListener(`click`, this._clickHandlerBind);
+
   }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
+  _clickHandler(evt) {
+    evt.preventDefault();
+    this._callback.click();
   }
-  removeElement() {
-    this._element = null;
-  }
+
   createTemplate() {
     return `<button class="films-list__show-more">Show more</button>`;
-
   }
 }
 

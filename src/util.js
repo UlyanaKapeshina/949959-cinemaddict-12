@@ -25,19 +25,31 @@ export const RENDER_POSITION = {
   AFTEREND: `afterend`
 };
 
-export const render = (container, element, place) => {
+export const render = (container, child, place) => {
+  if (container.element) {
+    container = container.element;
+  }
+  if (child.element) {
+    child = child.element;
+  }
   switch (place) {
     case RENDER_POSITION.AFTERBEGIN:
-      container.prepend(element);
+      container.prepend(child);
       break;
     case RENDER_POSITION.AFTEREND:
-      container.after(element);
+      container.after(child);
       break;
     case RENDER_POSITION.BEFOREEND:
-      container.append(element);
+      container.append(child);
       break;
   }
 };
-export const remove = function (container, element) {
-  container.removeChild(element);
+export const remove = function (container, child) {
+  if (container.element) {
+    container = container.element;
+  }
+  if (child.element) {
+    child = child.element;
+  }
+  container.removeChild(child);
 };

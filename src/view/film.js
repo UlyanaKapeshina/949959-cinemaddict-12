@@ -1,25 +1,12 @@
+import Abstract from "./abstract";
 
 
-export default class FilmView {
+export default class FilmView extends Abstract {
   constructor(filmData) {
+    super();
     this._film = filmData;
-    this._element = null;
   }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
 
-    }
-    return this._element;
-  }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
-  }
-  removeElement() {
-    this._element = null;
-  }
   createTemplate() {
     const {name, rating, year, runtime, genres, poster, description, comments, isFavorite, isWatched, isInWatchlist} = this._film;
     const favoriteActiveClass = isFavorite ? `film-card__controls-item--active` : ``;
