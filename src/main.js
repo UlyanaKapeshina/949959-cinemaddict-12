@@ -1,12 +1,13 @@
 import FilterView from "./view/filter";
 import FooterStatView from "./view/footer-stat";
 import {createFilm} from "./mock/film-mock";
-import {getRandomInteger, render, RENDER_POSITION} from "./util";
+import {render, RenderPosition} from "./utils/render";
 import ProfileView from "./view/profile";
 import {getFilterItems} from "./mock/filters-mock";
 import SortView from "./view/sort";
 import {getRatingName} from "./mock/profile-mock";
 import FilmsBoardPresenter from "./view/presenter/filmsBoard";
+import {getRandomInteger} from "./utils/common";
 
 const CARD_COUNT = 20;
 
@@ -21,11 +22,11 @@ const header = document.querySelector(`.header`);
 const body = document.querySelector(`body`);
 
 
-render(header, new ProfileView(profileRatingName), RENDER_POSITION.BEFOREEND);
-render(main, new FilterView(filtersItems), RENDER_POSITION.BEFOREEND);
-render(main, new SortView(), RENDER_POSITION.BEFOREEND);
+render(header, new ProfileView(profileRatingName), RenderPosition.BEFOREEND);
+render(main, new FilterView(filtersItems), RenderPosition.BEFOREEND);
+render(main, new SortView(), RenderPosition.BEFOREEND);
 const filmsPresenter = new FilmsBoardPresenter(main, body);
 filmsPresenter.init(filmsData);
-render(footer, new FooterStatView(moviesCount), RENDER_POSITION.BEFOREEND);
+render(footer, new FooterStatView(moviesCount), RenderPosition.BEFOREEND);
 
 

@@ -1,4 +1,4 @@
-import {getRandomInteger, getRandomArray, getRandomArrayElement, getRandomDate} from "../util";
+import {getRandomInteger, getRandomArray, getRandomArrayElement, getRandomDate} from "../utils/common.js";
 import {EMOTIONS} from "../constants";
 
 
