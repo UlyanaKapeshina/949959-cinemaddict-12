@@ -1,23 +1,11 @@
+import Abstract from "./abstract";
 
-export default class SortView {
+export default class SortView extends Abstract {
   constructor(filtersItems) {
+    super();
     this._filterItems = filtersItems;
-    this._element = null;
   }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
-    }
-    return this._element;
-  }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
-  }
-  removeElement() {
-    this._element = null;
-  }
+
   createTemplate() {
     return `<ul class="sort">
     <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>

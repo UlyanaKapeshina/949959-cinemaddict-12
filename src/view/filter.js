@@ -1,24 +1,12 @@
+import Abstract from "./abstract";
 
 
-export default class FilterView {
+export default class FilterView extends Abstract {
   constructor(filtersItems) {
+    super();
     this._filterItems = filtersItems;
-    this._element = null;
   }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
-    }
-    return this._element;
-  }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
-  }
-  removeElement() {
-    this._element = null;
-  }
+
   createTemplate() {
     const filtersList = this._filterItems.map((it, index) => {
       const activeClass = index === 0 ? `main-navigation__item--active` : ``;

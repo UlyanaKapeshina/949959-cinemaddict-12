@@ -1,25 +1,13 @@
 import {EMOTIONS} from "../constants";
+import Abstract from "./abstract";
 
 
-export default class FilmPopupView {
+export default class FilmPopupView extends Abstract {
   constructor(filmData) {
+    super();
     this._film = filmData;
-    this._element = null;
   }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
-    }
-    return this._element;
-  }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
-  }
-  removeElement() {
-    this._element = null;
-  }
+
   createTemplate() {
     const {poster, name, rating, releaseDate, runtime, genres, description, old, director, writers, actors, country, comments, isFavorite, isWatched, isInWatchlist} = this._film;
     const genresList = genres.map((it) => {
