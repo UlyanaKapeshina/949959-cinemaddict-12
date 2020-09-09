@@ -84,8 +84,9 @@ const getDescription = (length) => {
 const getDate = () => {
   const day = getRandomInteger(1, 31);
   const year = getRandomInteger(1920, 2020);
-  const month = getRandomArrayElement([`January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`]);
-  return [day, month, year];
+  const month = getRandomInteger(0, 11);
+  // return [day, month, year];
+  return new Date(year, month, day);
 };
 
 
@@ -117,8 +118,8 @@ export const createFilm = ()=> {
     director: getRandomArrayElement(DIRECTORS),
     writers: Array.from(new Set(getRandomArray(WRITERS, 5))),
     actors: Array.from(new Set(getRandomArray(ACTORS, 10))),
-    year: date[2],
-    releaseDate: date.join(` `),
+    year: date.getFullYear(),
+    releaseDate: date,
     runtime: getRandomTime(),
     country: getRandomArrayElement(COUNTRIES),
     genres: Array.from(new Set(getRandomArray(GENRES, 5))),
