@@ -32,3 +32,19 @@ export const remove = function (container, child) {
   }
   container.removeChild(child);
 };
+export const removeClassNames = (className, parentElement) => {
+  const elements = parentElement.querySelectorAll(`.${className}`);
+  for (let element of elements) {
+    element.classList.remove(className);
+  }
+};
+export const addClassName = (className, element) => {
+  element.classList.add(className);
+};
+export const removeClassName = (className, element) => {
+  element.classList.remove(className);
+};
+export const changeActiveClass = (className, element, parentElement) => {
+  removeClassNames(className, parentElement);
+  addClassName(className, element);
+};

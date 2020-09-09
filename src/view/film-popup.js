@@ -13,6 +13,8 @@ export default class FilmPopupView extends Abstract {
     const genresList = genres.map((it) => {
       return `<span class="film-details__genre">${it}</span>`;
     }).join(``);
+    const dateRelease = releaseDate.toLocaleString();
+
 
     const commentsList = comments.map((it) => {
       const date = new Date(it.date).toLocaleString();
@@ -79,7 +81,7 @@ export default class FilmPopupView extends Abstract {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${releaseDate}</td>
+                <td class="film-details__cell">${dateRelease.slice(0, dateRelease.length - 10).split(`.`).join(`/`)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
