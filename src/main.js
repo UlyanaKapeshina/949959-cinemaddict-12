@@ -6,7 +6,7 @@ import ProfileView from "./view/profile";
 import {getFilterItems} from "./mock/filters-mock";
 
 import {getRatingName} from "./mock/profile-mock";
-import FilmsBoardPresenter from "./view/presenter/filmsBoard";
+import FilmsBoardPresenter from "./presenter/movie-list";
 import {getRandomInteger} from "./utils/common";
 
 const CARD_COUNT = 20;

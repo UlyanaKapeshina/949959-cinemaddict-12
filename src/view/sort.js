@@ -9,7 +9,7 @@ export default class SortView extends Abstract {
     this._clickHandlerBind = this._clickHandler.bind(this);
   }
 
-  setClickHandler(callback) {
+  set clickHandler(callback) {
     this._callback.changeSortType = callback;
     this.element.addEventListener(`click`, this._clickHandlerBind);
   }

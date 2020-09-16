@@ -101,6 +101,13 @@ const createComment = () => {
   };
 };
 const COMMENTS_COUNT = 5;
+let a = 1;
+const getId = () => {
+  a++;
+  // console.log(id);
+  return a;
+};
+
 
 export const createFilm = ()=> {
   const name = getRandomArrayElement(NAMES);
@@ -110,7 +117,9 @@ export const createFilm = ()=> {
     return it;
   });
 
+
   return {
+    id: getId(),
     poster: getRandomArrayElement(POSTERS_SRC),
     name,
     originalName: name,
