@@ -1,3 +1,4 @@
+import moment from "moment";
 export const getRandomInteger = (a, b) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -18,4 +19,19 @@ export const getRandomArray = (arr, maxLength) => {
 };
 export const getRandomDate = (start, end) => {
   return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+};
+
+export const formatDurationFilm = (duration) => {
+  const milliseconds = moment.duration(duration, `m`).asMilliseconds();
+  const hours = moment.duration(milliseconds).asHours();
+  if (hours > 1) {
+    return moment.utc(milliseconds).format(`h[h] mm[m]`);
+  }
+  return moment.utc(milliseconds).format(`mm[m]`);
+};
+export const formatDate = (date) => {
+  return moment(date).format(`D MMMM YYYY`);
+};
+export const formatCommentDate = (date) => {
+  return moment(date).format(`YYYY/MM/DD hh:mm`);
 };

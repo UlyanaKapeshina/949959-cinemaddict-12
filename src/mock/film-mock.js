@@ -26,11 +26,11 @@ const ACTORS = [
 ];
 const GENRES = [`Western`, ` Musical`, `Comedy`, `Cartoon`, `Drama`];
 
-const getRandomTime = () => {
-  const hours = getRandomInteger(0, 2);
-  const minutes = getRandomInteger(0, 60);
-  return `${hours ? hours + `h ` : ``}${minutes ? minutes + `m ` : ``}`;
-};
+// const getRandomTime = () => {
+//   const hours = getRandomInteger(0, 2);
+//   const minutes = getRandomInteger(0, 60);
+//   return `${hours ? hours + `h ` : ``}${minutes ? minutes + `m ` : ``}`;
+// };
 
 const POSTERS_SRC = [
   `made-for-each-other.png`,
@@ -127,9 +127,9 @@ export const createFilm = ()=> {
     director: getRandomArrayElement(DIRECTORS),
     writers: Array.from(new Set(getRandomArray(WRITERS, 5))),
     actors: Array.from(new Set(getRandomArray(ACTORS, 10))),
-    year: date.getFullYear(),
+
     releaseDate: date,
-    runtime: getRandomTime(),
+    runtime: getRandomInteger(40, 170),
     country: getRandomArrayElement(COUNTRIES),
     genres: Array.from(new Set(getRandomArray(GENRES, 5))),
 
