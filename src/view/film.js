@@ -1,5 +1,7 @@
 import Abstract from "./abstract";
 
+import {formatDurationFilm} from "../utils/common";
+
 
 export default class FilmView extends Abstract {
   constructor(filmData) {
@@ -53,16 +55,19 @@ export default class FilmView extends Abstract {
   }
 
   createTemplate() {
-    const {name, rating, year, runtime, genres, poster, description, comments, isFavorite, isWatched, isInWatchlist} = this._film;
+    const {name, rating, runtime, genres, poster, description, comments, isFavorite, isWatched, isInWatchlist} = this._film;
     const favoriteActiveClass = isFavorite ? `film-card__controls-item--active` : ``;
     const watchedActiveClass = isWatched ? `film-card__controls-item--active` : ``;
     const watchlistActiveClass = isInWatchlist ? `film-card__controls-item--active` : ``;
+    const formattedRuntime = formatDurationFilm(runtime);
+    const year = new Date(runtime).getFullYear();
+
     return `<article class="film-card">
       <h3 class="film-card__title">${name}</h3>
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${year}</span>
-        <span class="film-card__duration">${runtime}</span>
+        <span class="film-card__duration">${formattedRuntime}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>
       <img src="./images/posters/${poster}" alt="${name} poster" class="film-card__poster">

@@ -1,6 +1,7 @@
 import {EMOTIONS} from "../constants";
 
 import Smart from "./smart";
+import {formatDurationFilm, formatDate, formatCommentDate} from "../utils/common";
 
 export default class FilmPopupView extends Smart {
   constructor(filmData) {
@@ -100,11 +101,11 @@ export default class FilmPopupView extends Smart {
     const genresList = genres.map((it) => {
       return `<span class="film-details__genre">${it}</span>`;
     }).join(``);
-    const dateRelease = releaseDate.toLocaleString();
-
+    const dateRelease = formatDate(releaseDate);
+    const formattedRuntime = formatDurationFilm(runtime);
 
     const commentsList = comments.map((it) => {
-      const date = new Date(it.date).toLocaleString();
+      const date = formatCommentDate(it.date);
 
       return `<li class="film-details__comment">
       <span class="film-details__comment-emoji">
@@ -114,7 +115,7 @@ export default class FilmPopupView extends Smart {
         <p class="film-details__comment-text">${it.text}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${it.author}</span>
-          <span class="film-details__comment-day">${date.slice(0, date.length - 3)}</span>
+          <span class="film-details__comment-day">${date}</span>
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>
@@ -170,11 +171,11 @@ export default class FilmPopupView extends Smart {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${dateRelease.slice(0, dateRelease.length - 10).split(`.`).join(`/`)}</td>
+                <td class="film-details__cell">${dateRelease}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${runtime}</td>
+                <td class="film-details__cell">${formattedRuntime}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
