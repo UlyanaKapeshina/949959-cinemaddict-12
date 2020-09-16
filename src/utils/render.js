@@ -1,3 +1,5 @@
+import Abstract from "../view/abstract";
+
 export const RenderPosition = {
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`,
@@ -23,14 +25,27 @@ export const render = (container, child, place) => {
       break;
   }
 };
-export const remove = function (container, child) {
-  if (container.element) {
-    container = container.element;
+export const remove = function (component) {
+  if (component === null) {
+    return;
   }
-  if (child.element) {
-    child = child.element;
+
+  if (!(component instanceof Abstract)) {
+    throw new Error(`can remove only components`);
   }
-  container.removeChild(child);
+  component.element.remove();
+  component.removeElement();
+
+};
+export const replace = (newElement, oldElement) => {
+  if (oldElement instanceof Abstract) {
+    oldElement = oldElement.element;
+  }
+  if (newElement instanceof Abstract) {
+    newElement = newElement.element;
+  }
+  const parent = oldElement.parentElement;
+  parent.replaceChild(newElement, oldElement);
 };
 export const removeClassNames = (className, parentElement) => {
   const elements = parentElement.querySelectorAll(`.${className}`);
