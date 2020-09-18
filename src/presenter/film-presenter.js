@@ -1,9 +1,13 @@
 import FilmView from "../view/film";
 import FilmPopupView from "../view/film-popup";
 import {remove, render, RenderPosition, replace} from "../utils/render";
-
+const TypeAction = {
+  DELETE: `delete`,
+  ADD: `add`
+}
 export default class Film {
-  constructor(container, popupContainer, onDataChange, onPopupOpen) {
+  constructor(container, popupContainer, onDataChange, onPopupOpen, onCommentsChange) {
+    // this._commentsModel = commentsModel;
     this._filmsContainer = container.element;
     this._popupContainer = popupContainer;
     this._onPopupOpen = onPopupOpen;
@@ -13,37 +17,40 @@ export default class Film {
     this._onFavoriteClickHandler = this._onFavoriteClickHandler.bind(this);
     this._onWatchListClickHandler = this._onWatchListClickHandler.bind(this);
     this._onWatchedClickHandler = this._onWatchedClickHandler.bind(this);
-    this._onFormSubmit = this._onFormSubmit.bind(this);
-    this._filmComponent = null;
-    this._filmPopupComponent = null;
+    this._onTextareaChangeHandler = this._onTextareaChangeHandler.bind(this);
+    this._onEmojiChangeHandler = this._onEmojiChangeHandler.bind(this);
+    this._onDeleteClickHandler = this._onDeleteClickHandler.bind(this);
+    this._onFormSubmitHandler = this._onFormSubmitHandler.bind(this);
     this._onDataChange = onDataChange;
+    this._onCommentsChange = onCommentsChange;
     this.init = this.init.bind(this);
     this._isPopupOpen = false;
   }
 
-  init(filmData) {
+  init(filmData, commentsData) {
     this._filmData = filmData;
+    this._commentsData = commentsData;
     this._filmComponent = new FilmView(this._filmData);
-    this._filmPopupComponent = new FilmPopupView(this._filmData);
+    this._filmPopupComponent = new FilmPopupView(this._filmData, this._commentsData);
     this._setHandlers();
     render(this._filmsContainer, this._filmComponent, RenderPosition.BEFOREEND);
   }
 
-  _update(newData) {
-    this._filmData = Object.assign({}, this._filmData, newData);
-    const prevFilmComponent = this._filmComponent;
-    const prevFilmPopupComponent = this._filmPopupComponent;
-    this._filmComponent = new FilmView(this._filmData);
-    this._filmPopupComponent = new FilmPopupView(this._filmData);
-    this._setHandlers();
-    if (this._filmsContainer.contains(prevFilmComponent.element)) {
-      replace(this._filmComponent.element, prevFilmComponent.element);
-    }
-    if (this._popupContainer.contains(prevFilmPopupComponent.element)) {
-      replace(this._filmPopupComponent.element, prevFilmPopupComponent.element);
-    }
-    remove(prevFilmComponent);
-    remove(prevFilmPopupComponent);
+  update(newData) {
+    // this._filmData = newData;
+    // const prevFilmComponent = this._filmComponent;
+    // const prevFilmPopupComponent = this._filmPopupComponent;
+    // this._filmComponent = new FilmView(this._filmData);
+    // this._filmPopupComponent = new FilmPopupView(this._filmData, this._commentsData, this._popupCash);
+    // this._setHandlers();
+    // if (this._filmsContainer.contains(prevFilmComponent.element)) {
+    //   replace(this._filmComponent.element, prevFilmComponent.element);
+    // }
+    // if (this._popupContainer.contains(prevFilmPopupComponent.element)) {
+    //   replace(this._filmPopupComponent.element, prevFilmPopupComponent.element);
+    // }
+    // remove(prevFilmComponent);
+    // remove(prevFilmPopupComponent);
   }
 
   _setHandlers() {
@@ -55,24 +62,37 @@ export default class Film {
     this._filmPopupComponent.setOnFavoriteClickHandler(this._onFavoriteClickHandler);
     this._filmPopupComponent.setOnWatchListClickHandler(this._onWatchListClickHandler);
     this._filmPopupComponent.setOnWatchedClickHandler(this._onWatchedClickHandler);
-    this._filmPopupComponent.setOnSubmitHandler(this._onFormSubmit);
+    this._filmPopupComponent.setTextareaChangeHandler(this._onTextareaChangeHandler);
+    this._filmPopupComponent.setEmojiChangeHandler(this._onEmojiChangeHandler);
+    this._filmPopupComponent.setDeleteClickHandler(this._onDeleteClickHandler);
+    this._filmPopupComponent.setOnSubmitHandler(this._onFormSubmitHandler);
   }
 
-  _onFormSubmit(data) {
+  _onFormSubmitHandler(data) {
     this._onDataChange(data);
+  }
+  _onDeleteClickHandler(id) {
+    this._onCommentsChange(TypeAction.DELETE, id);
+    // this._update(data);
   }
 
   _onFavoriteClickHandler(data) {
     this._onDataChange(data, this._filmData.id);
-    this._update(data);
+    // this._update(data);
   }
   _onWatchedClickHandler(data) {
     this._onDataChange(data, this._filmData.id);
-    this._update(data);
+    // this._update(data);
   }
   _onWatchListClickHandler(data) {
     this._onDataChange(data, this._filmData.id);
-    this._update(data);
+    // this._update(data);
+  }
+  _onTextareaChangeHandler(data) {
+    this._popupCash = Object.assign({}, this._popupCash, {text: data});
+  }
+  _onEmojiChangeHandler(data) {
+    this._popupCash = Object.assign({}, this._popupCash, {emoji: data});
   }
 
   resetPopupView() {
@@ -89,6 +109,7 @@ export default class Film {
   _openFilmPopup() {
     this._onPopupOpen();
     this._isPopupOpen = true;
+    this._filmPopupComponent.restoreHandlers();
     render(this._popupContainer, this._filmPopupComponent, RenderPosition.BEFOREEND);
     document.addEventListener(`keydown`, this._onEscPress);
 
@@ -96,7 +117,7 @@ export default class Film {
   _closeFilmPopup() {
     this._filmPopupComponent.element.remove();
     this._filmPopupComponent.removeElement();
-    this._update(this._filmData);
+    this._popupCash = null;
     this._isPopupOpen = false;
   }
   _onEscPress(evt) {

@@ -1,22 +1,7 @@
-export default class FilmsListView {
-  constructor() {
+import Abstract from "./abstract";
 
-    this._element = null;
-  }
-  get element() {
-    if (!this._element) {
-      this._element = this.createElement();
-    }
-    return this._element;
-  }
-  createElement() {
-    const div = document.createElement(`div`);
-    div.innerHTML = this.createTemplate();
-    return div.firstChild;
-  }
-  removeElement() {
-    this._element = null;
-  }
+export default class FilmsListView extends Abstract {
+
   createTemplate() {
     return `<section class="films-list"></section>`;
   }

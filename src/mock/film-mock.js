@@ -89,10 +89,10 @@ const getDate = () => {
   return new Date(year, month, day);
 };
 
-
+let commentIdGenerator = Date.now();
 const createComment = () => {
   return {
-    id: Date.now(),
+    id: commentIdGenerator++,
     text: getDescription(2),
     emotion: getRandomArrayElement(EMOTIONS),
     author: getRandomArrayElement([`Tim Macoveev`, `John Doe`, `Vasya`, `Natalya1998`, `Solntse`]),
@@ -107,16 +107,17 @@ const getId = () => {
   // console.log(id);
   return a;
 };
+export const comments = new Array(20).fill(``).map((it) => {
+  it = createComment();
+  return it;
+});
+const commentsId = comments.map((it) => it.id);
 
 
 export const createFilm = ()=> {
   const name = getRandomArrayElement(NAMES);
   const date = getDate();
-  const comments = new Array(getRandomInteger(1, COMMENTS_COUNT)).fill().map((it)=> {
-    it = createComment();
-    return it;
-  });
-
+  const commentsIds = Array.from(new Set(getRandomArray(commentsId, 3)));
 
   return {
     id: getId(),
@@ -135,7 +136,7 @@ export const createFilm = ()=> {
 
     description: getDescription(5),
     // commentsCount: getRandomInteger(0, 1000),
-    comments: Array.from(new Set(comments)),
+    comments: commentsIds,
     old: getRandomInteger(5, 18),
     isWatched: Math.random() >= 0.5,
     isInWatchlist: Math.random() >= 0.5,
