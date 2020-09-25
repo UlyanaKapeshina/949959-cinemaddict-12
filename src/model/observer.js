@@ -9,7 +9,7 @@ export default class Observer {
     this._observers.filter((it) => observer !== it);
   }
 
-  notify() {
-    this._observers.forEach((observer) => observer());
+  notify(update, payload) {
+    this._observers.forEach((observer) => observer(update, payload));
   }
 }

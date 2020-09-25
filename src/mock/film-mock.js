@@ -92,7 +92,7 @@ const getDate = () => {
 let commentIdGenerator = Date.now();
 const createComment = () => {
   return {
-    id: commentIdGenerator++,
+    id: `${commentIdGenerator++}`,
     text: getDescription(2),
     emotion: getRandomArrayElement(EMOTIONS),
     author: getRandomArrayElement([`Tim Macoveev`, `John Doe`, `Vasya`, `Natalya1998`, `Solntse`]),
@@ -100,7 +100,7 @@ const createComment = () => {
     isDelete: false,
   };
 };
-const COMMENTS_COUNT = 5;
+
 let a = 1;
 const getId = () => {
   a++;
@@ -120,7 +120,7 @@ export const createFilm = ()=> {
   const commentsIds = Array.from(new Set(getRandomArray(commentsId, 3)));
 
   return {
-    id: getId(),
+    id: `${getId()}`,
     poster: getRandomArrayElement(POSTERS_SRC),
     name,
     originalName: name,

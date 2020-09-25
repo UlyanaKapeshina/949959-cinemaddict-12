@@ -1,23 +1,23 @@
 import {EMOTIONS} from "../constants";
 import {formatDurationFilm, formatDate, formatCommentDate} from "../utils/common";
 import Abstract from "./abstract";
-
-
+import he from "he";
 export default class FilmPopupView extends Abstract {
-  constructor(filmData, comments, cash) {
+  constructor(filmData, comments, {text = null, emoji = null} = {}) {
     super();
     this._data = filmData;
     this._comments = comments;
-    this._cash = cash;
-    this._emoji = ``;
+    this._commentText = text;
+    this._emoji = emoji;
     this._closeButtonClickHandlerBind = this._closeButtonClickHandler.bind(this);
     this._onFavoriteClickHandler = this._onFavoriteClickHandler.bind(this);
     this._onWatchedClickHandler = this._onWatchedClickHandler.bind(this);
     this._onWatchListClickHandler = this._onWatchListClickHandler.bind(this);
-    this._onTextareaChangeHandler = this._onTextareaChangeHandler.bind(this);
     this._onEmojiChangeHandler = this._onEmojiChangeHandler.bind(this);
+    this._onTextareaChangeHandler = this._onTextareaChangeHandler.bind(this);
     this._onDeleteClickHandler = this._onDeleteClickHandler.bind(this);
     this._onFormSubmit = this._onFormSubmit.bind(this);
+    this._setInnerHandlers();
   }
   setCloseButtonClickHandler(callback) {
     this._callback.close = callback;
@@ -35,18 +35,16 @@ export default class FilmPopupView extends Abstract {
     this._callback.watchListClick = callback;
     this.element.querySelector(`#watchlist`).addEventListener(`click`, this._onWatchListClickHandler);
   }
-  setTextareaChangeHandler(callback) {
-    this._callback.changeText = callback;
+  _setInnerHandlers() {
+    this.element.querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._onEmojiChangeHandler);
     this.element.querySelector(`.film-details__comment-input`).addEventListener(`change`, this._onTextareaChangeHandler);
   }
-  setEmojiChangeHandler(callback) {
-    this._callback.changeEmoji = callback;
-
-    this.element.querySelector(`.film-details__emoji-list`).addEventListener(`change`, this._onEmojiChangeHandler);
+  setAddToPopupCash(callback) {
+    this._callback.addToCash = callback;
   }
   setOnSubmitHandler(callback) {
     this._callback.submit = callback;
-    this.element.querySelector(`.film-details__inner`).addEventListener(`submit`, this._onFormSubmit);
+    this.element.querySelector(`.film-details__inner`).addEventListener(`keydown`, this._onFormSubmit);
   }
   setDeleteClickHandler(callback) {
     this._callback.delete = callback;
@@ -58,27 +56,29 @@ export default class FilmPopupView extends Abstract {
     }
   }
   restoreHandlers() {
+    this._setInnerHandlers();
     this.setOnFavoriteClickHandler(this._callback.favoriteClick);
     this.setOnWatchedClickHandler(this._callback.watchedClick);
     this.setOnWatchListClickHandler(this._callback.watchListClick);
     this.setOnSubmitHandler(this._callback.submit);
     this.setCloseButtonClickHandler(this._callback.close);
-    this.setTextareaChangeHandler(this._callback.changeText);
-    this.setEmojiChangeHandler(this._callback.changeEmoji);
+    this.setAddToPopupCash(this._callback.addToCash);
     this.setDeleteClickHandler(this._callback.delete);
+  }
+  _clearUserData() {
+    this._emoji = null;
+    this._commentText = null;
   }
   _closeButtonClickHandler(evt) {
     evt.preventDefault();
-    this._cash = null;
+    this._clearUserData();
     this._callback.close();
   }
   _onFormSubmit(evt) {
-    evt.preventDefault();
-    if (!this._emoji) {
-      return;
+    if ((evt.ctrlKey) && evt.key === `Enter` && evt.target.value && this._emoji) {
+      this._callback.submit([he.encode(evt.target.value), this._emoji, Date.now()]);
+      this._clearUserData();
     }
-    this._updateData();
-    this._callback.submit(this._data);
   }
   _onDeleteClickHandler(evt) {
     evt.preventDefault();
@@ -87,36 +87,37 @@ export default class FilmPopupView extends Abstract {
   _onFavoriteClickHandler(evt) {
     evt.preventDefault();
     this._data.isFavorite = !this._data.isFavorite;
-    this._callback.favoriteClick({isFavorite: this._data.isFavorite});
+    this._callback.favoriteClick(this._data);
   }
   _onWatchedClickHandler(evt) {
     evt.preventDefault();
     this._data.isWatched = !this._data.isWatched;
-    this._callback.watchedClick({isWatched: this._data.isWatched});
+    this._callback.watchedClick(this._data);
   }
   _onWatchListClickHandler(evt) {
     evt.preventDefault();
     this._data.isInWatchlist = !this._data.isInWatchlist;
-    this._callback.watchListClick({isInWatchlist: this._data.isInWatchlist});
+    this._callback.watchListClick(this._data);
   }
   _onTextareaChangeHandler(evt) {
-    evt.preventDefault();
-    this._callback.changeText(evt.target.value);
+    this._commentText = evt.target.value;
+    this._callback.addToCash({text: this._commentText});
   }
   _onEmojiChangeHandler(evt) {
     evt.preventDefault();
     if (evt.target.tagName !== `INPUT`) {
       return;
     }
+    this._emoji = evt.target.value;
     const emojiContainer = document.querySelector(`.film-details__add-emoji-label`);
     emojiContainer.innerHTML = ``;
-    emojiContainer.insertAdjacentHTML(`beforeEnd`, this._getEmojiTemplate(evt.target.value));
-    this._callback.changeEmoji(evt.target.value);
+    emojiContainer.insertAdjacentHTML(`beforeEnd`, this._getEmojiTemplate(this._emoji));
+    this._callback.addToCash({emoji: this._emoji});
+
   }
   _getEmojiTemplate(emoji) {
     return `<img src="images/emoji/${emoji}.png" width="55" height="55" alt="emoji-${emoji}">`;
   }
-
   createTemplate() {
     const {poster, name, rating, releaseDate, runtime, comments, genres, description, old, director, writers, actors, country, isFavorite, isWatched, isInWatchlist} = this._data;
     const genresList = genres.map((it) => {
@@ -143,9 +144,8 @@ export default class FilmPopupView extends Abstract {
     </li>`;
     }).join(``);
 
-    const text = this._cash && this._cash.text ? this._cash.text : ``;
-    const emoji = this._cash && this._cash.emoji ? this._getEmojiTemplate(this._cash.emoji) : ``;
-
+    const text = this._commentText ? this._commentText : ``;
+    const emoji = this._emoji ? this._getEmojiTemplate(this._emoji) : ``;
     const emojiList = EMOTIONS.map((it) => {
       return `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${it}" value="${it}" ${it === this._data.newCommentEmotion ? `checked` : ``}>
               <label class="film-details__emoji-label" for="emoji-${it}">
