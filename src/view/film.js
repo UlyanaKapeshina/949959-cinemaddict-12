@@ -55,12 +55,12 @@ export default class FilmView extends Abstract {
   }
 
   createTemplate() {
-    const {name, rating, runtime, genres, poster, description, comments, isFavorite, isWatched, isInWatchlist} = this._film;
+    const {name, rating, runtime, releaseDate, genres, poster, description, comments, isFavorite, isWatched, isInWatchlist} = this._film;
     const favoriteActiveClass = isFavorite ? `film-card__controls-item--active` : ``;
     const watchedActiveClass = isWatched ? `film-card__controls-item--active` : ``;
     const watchlistActiveClass = isInWatchlist ? `film-card__controls-item--active` : ``;
     const formattedRuntime = formatDurationFilm(runtime);
-    const year = new Date(runtime).getFullYear();
+    const year = new Date(releaseDate).getFullYear();
 
     return `<article class="film-card">
       <h3 class="film-card__title">${name}</h3>
