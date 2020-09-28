@@ -21,6 +21,10 @@ export default class FilmsListPresenter {
     this._renderFilmsContainer();
     this._renderFilms(0, this._cardsCount);
   }
+  destroy() {
+    this._removeFilms();
+    this._shownCardsCount = this._cardsCount;
+  }
   _renderFilm(filmData) {
     const film = new Film(this._filmsListContainerView, this._onDataChange, this._onOpenPopupClick);
     film.init(filmData);

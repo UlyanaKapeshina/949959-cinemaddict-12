@@ -6,7 +6,7 @@ export default class Observer {
     this._observers.push(observer);
   }
   removeObserver(observer) {
-    this._observers.filter((it) => observer !== it);
+    this._observers = this._observers.filter((it) => observer !== it);
   }
 
   notify(update, payload) {

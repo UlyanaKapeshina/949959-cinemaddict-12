@@ -3,27 +3,33 @@ import {RenderPosition, render, replace} from "../utils/render";
 import {getFilterItems} from "../mock/filters-mock";
 
 export default class FilterPresenter {
-  constructor(container, model, filmsModel) {
+  constructor(container, model, filmsModel, onStatsClick, onFilterClick) {
     this._container = container;
     this._model = model;
     this._filmsModel = filmsModel;
-    this._filterClickHandlerBind = this._filterClickHandler.bind(this);
+    this._filterClickHandler = this._filterClickHandler.bind(this);
     this._prevFilterComponent = null;
     this._onFilmsModelChange = this._onFilmsModelChange.bind(this);
+    this._onStatsClick = onStatsClick;
+    this._onFilterClick = onFilterClick;
+    this._statsClickHandler = this._statsClickHandler.bind(this);
+    this._isStatsOpen = false;
 
   }
   init() {
     this._filmsModel.addObserver(this._onFilmsModelChange);
 
     this._filterComponent = new FilterView(this._getFilters(), this._model.getFilter());
-    this._filterComponent.setFilterClickHandler(this._filterClickHandlerBind);
+    this._filterComponent.setFilterClickHandler(this._filterClickHandler);
+    this._filterComponent.setStatsClickHandler(this._statsClickHandler);
     render(this._container, this._filterComponent, RenderPosition.BEFOREEND);
   }
   _update() {
     this._prevFilterComponent = this._filterComponent;
 
     this._filterComponent = new FilterView(this._getFilters(), this._model.getFilter());
-    this._filterComponent.setFilterClickHandler(this._filterClickHandlerBind);
+    this._filterComponent.setFilterClickHandler(this._filterClickHandler);
+    this._filterComponent.setStatsClickHandler(this._statsClickHandler);
     replace(this._filterComponent, this._prevFilterComponent);
     this._prevFilterComponent = null;
   }
@@ -36,6 +42,18 @@ export default class FilterPresenter {
       return;
     }
     this._model.setFilter(filterName);
+    if (this._isStatsOpen) {
+      this._onFilterClick();
+      this._isStatsOpen = false;
+    }
+
+  }
+  _statsClickHandler() {
+    if (!this._isStatsOpen) {
+      this._onStatsClick();
+      this._isStatsOpen = true;
+    }
+
   }
   _getFilters() {
     const films = this._filmsModel.getFilms().slice();

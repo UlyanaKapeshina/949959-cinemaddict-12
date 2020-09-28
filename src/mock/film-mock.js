@@ -24,7 +24,7 @@ const ACTORS = [
   `Christian Bale`,
   `Jason Bateman`,
 ];
-const GENRES = [`Western`, ` Musical`, `Comedy`, `Cartoon`, `Drama`];
+const GENRES = [`Western`, `Musical`, `Comedy`, `Cartoon`, `Drama`];
 
 // const getRandomTime = () => {
 //   const hours = getRandomInteger(0, 2);
@@ -81,9 +81,9 @@ const getDescription = (length) => {
   return description.join(` `);
 };
 
-const getDate = () => {
+const getDate = (min, max) => {
   const day = getRandomInteger(1, 31);
-  const year = getRandomInteger(1920, 2020);
+  const year = getRandomInteger(min, max);
   const month = getRandomInteger(0, 11);
   // return [day, month, year];
   return new Date(year, month, day);
@@ -116,7 +116,8 @@ const commentsId = comments.map((it) => it.id);
 
 export const createFilm = ()=> {
   const name = getRandomArrayElement(NAMES);
-  const date = getDate();
+  const date = getDate(1920, 2020);
+  const dateWatch = getDate(2017, 2020);
   const commentsIds = Array.from(new Set(getRandomArray(commentsId, 3)));
 
   return {
@@ -132,10 +133,10 @@ export const createFilm = ()=> {
     releaseDate: date,
     runtime: getRandomInteger(40, 170),
     country: getRandomArrayElement(COUNTRIES),
-    genres: Array.from(new Set(getRandomArray(GENRES, 5))),
+    genres: Array.from(new Set(getRandomArray(GENRES, 1))),
 
     description: getDescription(5),
-    // commentsCount: getRandomInteger(0, 1000),
+    watchingDate: dateWatch.toISOString(),
     comments: commentsIds,
     old: getRandomInteger(5, 18),
     isWatched: Math.random() >= 0.5,

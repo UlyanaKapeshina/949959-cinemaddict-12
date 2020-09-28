@@ -6,11 +6,16 @@ export default class FilterView extends Abstract {
     this._filterItems = filtersItems;
     this._filterClickHandler = this._filterClickHandler.bind(this);
     this._currentFilter = currentFilter;
+    this._statsClickHandler = this._statsClickHandler.bind(this);
 
   }
   setFilterClickHandler(callback) {
     this._callback.filterClick = callback;
     this.element.querySelector(`.main-navigation__items`).addEventListener(`click`, this._filterClickHandler);
+  }
+  setStatsClickHandler(callback) {
+    this._callback.statsClick = callback;
+    this.element.querySelector(`.main-navigation__additional`).addEventListener(`click`, this._statsClickHandler);
   }
   _filterClickHandler(evt) {
     evt.preventDefault();
@@ -21,6 +26,13 @@ export default class FilterView extends Abstract {
     this._currentFilter = evt.target.dataset.type;
     this._removeActiveClass();
     evt.target.classList.add(`main-navigation__item--active`);
+  }
+  _statsClickHandler(evt) {
+    evt.preventDefault();
+    if (evt.target.tagName !== `A`) {
+      return;
+    }
+    this._callback.statsClick();
   }
   _removeActiveClass() {
     this.element.querySelectorAll(`.main-navigation__item--active`).forEach((it) => it.classList.remove(`main-navigation__item--active`));
