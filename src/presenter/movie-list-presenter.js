@@ -60,6 +60,10 @@ export default class MovieList {
     this._getFilms = this._getFilms.bind(this);
     this._getCommentedFilms = this._getCommentedFilms.bind(this);
     this._getRatedFilms = this._getRatedFilms.bind(this);
+    this._popupPresenter = new PopupPresenter(this._popupContainer, this._onDataChange, this._onCommentChange, this._commentsModel);
+    this._filmsCommentedPresenter = new FilmsListPresenter(this._filmsListCommented, EXTRA_CARD_COUNT, this._getCommentedFilms, this._onDataChange, this._onOpenPopupClick);
+    this._filmsRatedPresenter = new FilmsListPresenter(this._filmsListRated, EXTRA_CARD_COUNT, this._getRatedFilms, this._onDataChange, this._onOpenPopupClick);
+    this._filmsListPresenter = new FilmsListPresenter(this._filmsList, SHOWN_CARDS_COUNT, this._getFilms, this._onDataChange, this._onOpenPopupClick);
 
   }
   _getFilms() {
@@ -105,26 +109,36 @@ export default class MovieList {
     this._moviesModel.addObserver(this._onFilmModelChange);
     this._commentsModel.addObserver(this._onCommentModelChange);
     this._filtersModel.addObserver(this._onFilterModelChange);
-
-    this._popupPresenter = new PopupPresenter(this._popupContainer, this._onDataChange, this._onCommentChange, this._commentsModel);
-    this._filmsCommentedPresenter = new FilmsListPresenter(this._filmsListCommented, EXTRA_CARD_COUNT, this._getCommentedFilms, this._onDataChange, this._onOpenPopupClick);
-    this._filmsRatedPresenter = new FilmsListPresenter(this._filmsListRated, EXTRA_CARD_COUNT, this._getRatedFilms, this._onDataChange, this._onOpenPopupClick);
-    this._filmsListPresenter = new FilmsListPresenter(this._filmsList, SHOWN_CARDS_COUNT, this._getFilms, this._onDataChange, this._onOpenPopupClick);
-
     this._renderSort();
-    this._renderFilmsBoardContainer();
+    this._renderFilmsBoard();
     this._renderFilmsList();
     this._renderFilmsTitle();
     this._filmsListPresenter.init();
     this._renderMostCommentedFilms();
     this._renderTopRatedFilms();
   }
+  destroy() {
+    this._moviesModel.removeObserver(this._onFilmModelChange);
+    this._commentsModel.removeObserver(this._onCommentModelChange);
+    this._filtersModel.removeObserver(this._onFilterModelChange);
+
+    remove(this._filmsBoard);
+    remove(this._sort);
+    remove(this._filmsList);
+    this._removeTitle();
+    this._filmsListPresenter.destroy();
+    this._filmsCommentedPresenter.destroy();
+    this._filmsRatedPresenter.destroy();
+    this._popupPresenter.resetPopupView();
+
+    this._currentSortType = SortType.DEFAULT;
+  }
 
   _sortClickHandler(sortType) {
     if (this._currentSortType === sortType) {
       return;
     }
-    this._closePopup();
+    this._popupPresenter.resetPopupView();
     this._currentSortType = sortType;
     this._filmsListPresenter.updateList(true);
   }
@@ -174,9 +188,10 @@ export default class MovieList {
     }
   }
 
+
   _onFilterModelChange() {
     this._currentSortType = SortType.DEFAULT;
-    this._closePopup();
+    this._popupPresenter.resetPopupView();
     this._filmsListPresenter.updateList();
     this._removeTitle();
     this._renderFilmsTitle();
@@ -191,7 +206,7 @@ export default class MovieList {
     render(this._filmsBoard, this._filmsList, RenderPosition.AFTERBEGIN);
   }
 
-  _renderFilmsBoardContainer() {
+  _renderFilmsBoard() {
     render(this._movieListContainer, this._filmsBoard, RenderPosition.BEFOREEND);
   }
 
