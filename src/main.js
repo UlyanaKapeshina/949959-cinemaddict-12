@@ -4,7 +4,6 @@ import {createFilm, comments} from "./mock/film-mock";
 import {render, RenderPosition} from "./utils/render";
 import ProfileView from "./view/profile";
 import {getFilterItems} from "./mock/filters-mock";
-
 import {getRatingName} from "./mock/profile-mock";
 import FilmsBoardPresenter from "./presenter/movie-list-presenter";
 import {getRandomInteger} from "./utils/common";
@@ -12,6 +11,7 @@ import MoviesModel from "./model/movies-model";
 import CommentsModel from "./model/comments-model";
 import FilterPresenter from "./presenter/filters-presenter";
 import FiltersModel from "./model/filters-model";
+import StatsPresenter from "./presenter/stats-presenter";
 
 const CARD_COUNT = 7;
 
@@ -36,12 +36,20 @@ commentsModel.setComments(commentsData);
 
 render(header, new ProfileView(profileRatingName), RenderPosition.BEFOREEND);
 
+const openStats = () => {
+  statsPresenter.init(moviesModel.getFilms());
+  filmsPresenter.destroy();
+};
+const openFilmsList = () => {
+  statsPresenter.destroy();
+  filmsPresenter.init();
+};
 
 const filmsPresenter = new FilmsBoardPresenter(main, body, moviesModel, commentsModel, filtersModel);
-const filterPresenter = new FilterPresenter(main, filtersModel, moviesModel);
+const filterPresenter = new FilterPresenter(main, filtersModel, moviesModel, openStats, openFilmsList);
+const statsPresenter = new StatsPresenter(main);
 filterPresenter.init(filtersItems);
 filmsPresenter.init();
 
 render(footer, new FooterStatView(moviesCount), RenderPosition.BEFOREEND);
-
 

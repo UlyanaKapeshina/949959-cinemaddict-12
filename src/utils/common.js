@@ -29,6 +29,20 @@ export const formatDurationFilm = (duration) => {
   }
   return moment.utc(milliseconds).format(`mm[m]`);
 };
+export const getHoursFilmForStat = (duration) => {
+  const milliseconds = moment.duration(duration, `m`).asMilliseconds();
+  if (duration === 0) {
+    return `0`;
+  }
+  return moment.utc(milliseconds).format(`h mm`).split(` `)[0];
+};
+export const getMinutesFilmForStat = (duration) => {
+  const milliseconds = moment.duration(duration, `m`).asMilliseconds();
+  if (duration === 0) {
+    return `0`;
+  }
+  return moment.utc(milliseconds).format(`h mm`).split(` `)[1];
+};
 export const formatDate = (date) => {
   return moment(date).format(`D MMMM YYYY`);
 };
