@@ -4,33 +4,38 @@ export default class CommentsModel extends Observer {
   constructor() {
     super();
     this._comments = [];
-    this._idGenerator = 11111;
-  }
-  setComments(comments) {
-    this._comments = comments;
-  }
-  getCommentsById(id) {
-    return this._comments.filter((it) => it.id === id);
 
   }
+  setComments(comments, id) {
+    this._comments = comments;
+    this.notify(id);
+  }
+
   getComments() {
     return this._comments;
   }
 
-  deleteComment(commentId, filmId) {
-    const newComments = this._comments.filter((it) => it.id !== commentId);
-    this._comments = newComments;
-    this.notify(filmId);
+  deleteComment(commentId) {
+    this._comments = this._comments.filter((it) => it.id !== commentId);
   }
-  addComment([text, emotion, date], filmId) {
-    const newComment = {
-      id: `${this._idGenerator++}`,
-      author: `ololo`,
-      text,
+  updateComments(newComments) {
+    this._comments = newComments;
+  }
+  static adaptCommentToClient({id, author, comment, date, emotion}) {
+    return {
+      id,
+      author,
+      text: comment,
       date,
-      emotion,
+      emotion
     };
-    this._comments = [...this._comments, newComment];
-    this.notify(filmId);
+  }
+  static adaptCommentToServer([text, emotion, date]) {
+
+    return {
+      comment: text,
+      emotion,
+      date: new Date(date).toISOString()
+    };
   }
 }

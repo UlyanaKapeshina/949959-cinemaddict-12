@@ -29,10 +29,12 @@ export default class FilterView extends Abstract {
   }
   _statsClickHandler(evt) {
     evt.preventDefault();
+    this._removeActiveClass();
     if (evt.target.tagName !== `A`) {
       return;
     }
     this._callback.statsClick();
+    evt.target.classList.add(`main-navigation__item--active`);
   }
   _removeActiveClass() {
     this.element.querySelectorAll(`.main-navigation__item--active`).forEach((it) => it.classList.remove(`main-navigation__item--active`));
