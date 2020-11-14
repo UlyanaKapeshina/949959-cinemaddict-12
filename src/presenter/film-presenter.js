@@ -10,9 +10,7 @@ export default class Film {
     this._onDataChange = onDataChange;
     this._onOpenPopupClick = _onOpenPopupClick;
     this._openClickHandler = this._openClickHandler.bind(this);
-    this._onFavoriteClickHandler = this._onFavoriteClickHandler.bind(this);
-    this._onWatchListClickHandler = this._onWatchListClickHandler.bind(this);
-    this._onWatchedClickHandler = this._onWatchedClickHandler.bind(this);
+    this._onControlsClickHandler = this._onControlsClickHandler.bind(this);
     this._onDeleteClickHandler = this._onDeleteClickHandler.bind(this);
     this.init = this.init.bind(this);
 
@@ -42,9 +40,9 @@ export default class Film {
 
   _setHandlers() {
     this._filmComponent.setOpenPopupClickHandler(this._openClickHandler);
-    this._filmComponent.setOnFavoriteClickHandler(this._onFavoriteClickHandler);
-    this._filmComponent.setOnWatchListClickHandler(this._onWatchListClickHandler);
-    this._filmComponent.setOnWatchedClickHandler(this._onWatchedClickHandler);
+    this._filmComponent.setOnFavoriteClickHandler(this._onControlsClickHandler);
+    this._filmComponent.setOnWatchListClickHandler(this._onControlsClickHandler);
+    this._filmComponent.setOnWatchedClickHandler(this._onControlsClickHandler);
   }
 
   _onFormSubmitHandler(newCommentData) {
@@ -53,14 +51,8 @@ export default class Film {
   _onDeleteClickHandler(id) {
     this._onCommentsChange(TypeAction.DELETE, [this._id, id]);
   }
-  _onFavoriteClickHandler(data) {
-    this._onDataChange(data, {isFavorite: data.isFavorite});
-  }
-  _onWatchedClickHandler(data) {
-    this._onDataChange(data, {isWatched: data.isWatched});
-  }
-  _onWatchListClickHandler(data) {
-    this._onDataChange(data, {isInWatchlist: data.isInWatchlist});
+  _onControlsClickHandler(data, update, onError) {
+    this._onDataChange(data, update, onError);
   }
   _openClickHandler() {
     this._onOpenPopupClick(this._filmData);

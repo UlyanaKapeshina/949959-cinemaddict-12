@@ -2,7 +2,7 @@ import Abstract from "./abstract";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Chart from "chart.js";
 import moment from "moment";
-import {getRatingName} from "../mock/profile-mock";
+import {getRatingName} from "../utils/profile";
 import {getHoursFilmForStat, getMinutesFilmForStat} from "../utils/common";
 const BAR_HEIGHT = 50;
 

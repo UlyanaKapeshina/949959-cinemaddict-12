@@ -1,27 +1,18 @@
 
-import FooterStatView from "./view/footer-stat";
-import {createFilm, comments} from "./mock/film-mock";
-import {render, RenderPosition} from "./utils/render";
-import ProfileView from "./view/profile";
-import {getFilterItems} from "./mock/filters-mock";
-import {getRatingName} from "./mock/profile-mock";
+import FooterPresenter from "./presenter/footer-presenter";
 import FilmsBoardPresenter from "./presenter/movie-list-presenter";
-import {getRandomInteger} from "./utils/common";
 import MoviesModel from "./model/movies-model";
 import CommentsModel from "./model/comments-model";
 import FilterPresenter from "./presenter/filters-presenter";
 import FiltersModel from "./model/filters-model";
 import StatsPresenter from "./presenter/stats-presenter";
-
-const CARD_COUNT = 7;
-
-const filmsData = new Array(CARD_COUNT).fill().map(createFilm);
-const commentsData = comments;
+import API from "./api";
+import ProfilePresenter from "./presenter/profile-presenter";
 
 
-const filtersItems = getFilterItems(filmsData);
-const profileRatingName = getRatingName(filmsData);
-const moviesCount = getRandomInteger(100, 1000000);
+const URL = `https://12.ecmascript.pages.academy/cinemaddict`;
+const AUTORIZATION = `Basic 110w590ik29889v`;
+const api = new API(URL, AUTORIZATION);
 
 const main = document.querySelector(`main`);
 const footer = document.querySelector(`footer`);
@@ -30,11 +21,6 @@ const body = document.querySelector(`body`);
 const moviesModel = new MoviesModel();
 const commentsModel = new CommentsModel();
 const filtersModel = new FiltersModel();
-moviesModel.setFilms(filmsData);
-commentsModel.setComments(commentsData);
-
-
-render(header, new ProfileView(profileRatingName), RenderPosition.BEFOREEND);
 
 const openStats = () => {
   statsPresenter.init(moviesModel.getFilms());
@@ -45,11 +31,18 @@ const openFilmsList = () => {
   filmsPresenter.init();
 };
 
-const filmsPresenter = new FilmsBoardPresenter(main, body, moviesModel, commentsModel, filtersModel);
+const filmsPresenter = new FilmsBoardPresenter(main, body, moviesModel, commentsModel, filtersModel, api);
 const filterPresenter = new FilterPresenter(main, filtersModel, moviesModel, openStats, openFilmsList);
 const statsPresenter = new StatsPresenter(main);
-filterPresenter.init(filtersItems);
-filmsPresenter.init();
+const footerPresenter = new FooterPresenter(footer, moviesModel);
+const profilePresenter = new ProfilePresenter(header, moviesModel);
 
-render(footer, new FooterStatView(moviesCount), RenderPosition.BEFOREEND);
+filterPresenter.init();
+filmsPresenter.init();
+footerPresenter.init();
+profilePresenter.init();
+api.getFilms()
+.then((films) => moviesModel.setFilms(films))
+.catch(() => moviesModel.setFilms([]));
+
 

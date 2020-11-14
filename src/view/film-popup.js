@@ -17,6 +17,11 @@ export default class FilmPopupView extends Abstract {
     this._onTextareaChangeHandler = this._onTextareaChangeHandler.bind(this);
     this._onDeleteClickHandler = this._onDeleteClickHandler.bind(this);
     this._onFormSubmit = this._onFormSubmit.bind(this);
+    this.disableForm = this.disableForm.bind(this);
+    this.activateForm = this.activateForm.bind(this);
+    this.onSubmitError = this.onSubmitError.bind(this);
+    this.onDeleteError = this.onDeleteError.bind(this);
+    this.onUpdateError = this.onUpdateError.bind(this);
     this._setInnerHandlers();
   }
   setCloseButtonClickHandler(callback) {
@@ -48,8 +53,6 @@ export default class FilmPopupView extends Abstract {
   }
   setDeleteClickHandler(callback) {
     this._callback.delete = callback;
-
-
     const deleteButtons = this.element.querySelectorAll(`.film-details__comment-delete`);
     for (let button of deleteButtons) {
       button.addEventListener(`click`, this._onDeleteClickHandler);
@@ -75,29 +78,72 @@ export default class FilmPopupView extends Abstract {
     this._callback.close();
   }
   _onFormSubmit(evt) {
-    if ((evt.ctrlKey) && evt.key === `Enter` && evt.target.value && this._emoji) {
-      this._callback.submit([he.encode(evt.target.value), this._emoji, Date.now()]);
-      this._clearUserData();
+    if ((!evt.ctrlKey) && evt.key !== `Enter`) {
+      return;
     }
+    const textarea = this.element.querySelector(`.film-details__comment-input`);
+    if (textarea.value && this._emoji) {
+      const text = he.encode(textarea.value);
+      this._callback.submit([text, this._emoji, Date.now()], this.onSubmitError);
+      this.element.querySelector(`.film-details__comment-input`).classList.remove(`shake`);
+    }
+  }
+  disableForm() {
+    this.element.querySelectorAll(`input`).forEach((it) => {
+      it.disabled = true;
+    });
+    this.element.querySelectorAll(`textarea`).forEach((it) => {
+      it.disabled = true;
+    });
+  }
+  activateForm() {
+    document.querySelectorAll(`input`).forEach((it) => {
+      it.disabled = false;
+    });
+    document.querySelectorAll(`textarea`).forEach((it) => {
+      it.disabled = false;
+    });
+    // this.element.querySelector(`.film-details__comment-input`).classList.remove(`shake`);
+  }
+  onSubmitError() {
+    this.element.querySelector(`.film-details__comment-input`).classList.add(`shake`);
+    this.activateForm();
+  }
+  onDeleteError(id) {
+    const comment = this.element.querySelector(`li[data-comment-id="${id}"]`);
+    const button = comment.querySelector(`.film-details__comment-delete`);
+    comment.classList.add(`shake`);
+    button.disabled = false;
+    button.textContent = `Delete`;
+  }
+  onUpdateError() {
+    this.element.querySelector(`.film-details__controls`).classList.add(`shake`);
   }
   _onDeleteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.delete(evt.target.dataset.id);
+    this._callback.delete(evt.target.dataset.id, this.onDeleteError);
+    evt.target.disabled = true;
+    evt.target.textContent = `Deleting...`;
+    const comment = this.element.querySelector(`li[data-comment-id="${evt.target.dataset.id}"]`);
+    comment.classList.remove(`shake`);
   }
   _onFavoriteClickHandler(evt) {
     evt.preventDefault();
     this._data.isFavorite = !this._data.isFavorite;
-    this._callback.favoriteClick(this._data);
+    this.element.querySelector(`.film-details__controls`).classList.remove(`shake`);
+    this._callback.favoriteClick(this._data, {isFavorite: this._data.isFavorite}, this.onUpdateError);
   }
   _onWatchedClickHandler(evt) {
     evt.preventDefault();
     this._data.isWatched = !this._data.isWatched;
-    this._callback.watchedClick(this._data);
+    this.element.querySelector(`.film-details__controls`).classList.remove(`shake`);
+    this._callback.watchedClick(this._data, {isWatched: this._data.isWatched}, this.onUpdateError);
   }
   _onWatchListClickHandler(evt) {
     evt.preventDefault();
     this._data.isInWatchlist = !this._data.isInWatchlist;
-    this._callback.watchListClick(this._data);
+    this.element.querySelector(`.film-details__controls`).classList.remove(`shake`);
+    this._callback.watchListClick(this._data, {isInWatchlist: this._data.isInWatchlist}, this.onUpdateError);
   }
   _onTextareaChangeHandler(evt) {
     this._commentText = evt.target.value;
@@ -129,7 +175,7 @@ export default class FilmPopupView extends Abstract {
     const commentsList = this._comments.map((it) => {
       const date = formatCommentDate(it.date);
 
-      return `<li class="film-details__comment" data-id = ${it.id}>
+      return `<li class="film-details__comment" data-comment-id = ${it.id}>
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${it.emotion}.png" width="55" height="55" alt="emoji-smile">
       </span>
@@ -143,6 +189,7 @@ export default class FilmPopupView extends Abstract {
       </div>
     </li>`;
     }).join(``);
+
 
     const text = this._commentText ? this._commentText : ``;
     const emoji = this._emoji ? this._getEmojiTemplate(this._emoji) : ``;
@@ -161,7 +208,7 @@ export default class FilmPopupView extends Abstract {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="./images/posters/${poster}" alt="${name} poster">
+            <img class="film-details__poster-img" src="${poster}" alt="${name} poster">
 
             <p class="film-details__age">${old}+</p>
           </div>

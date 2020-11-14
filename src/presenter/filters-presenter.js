@@ -1,12 +1,12 @@
 import FilterView from "../view/filter";
 import {RenderPosition, render, replace} from "../utils/render";
-import {getFilterItems} from "../mock/filters-mock";
+import {getFilterItems} from "../utils/filters";
 
 export default class FilterPresenter {
-  constructor(container, model, filmsModel, onStatsClick, onFilterClick) {
+  constructor(container, model, moviesModel, onStatsClick, onFilterClick) {
     this._container = container;
     this._model = model;
-    this._filmsModel = filmsModel;
+    this._moviesModel = moviesModel;
     this._filterClickHandler = this._filterClickHandler.bind(this);
     this._prevFilterComponent = null;
     this._onFilmsModelChange = this._onFilmsModelChange.bind(this);
@@ -17,7 +17,7 @@ export default class FilterPresenter {
 
   }
   init() {
-    this._filmsModel.addObserver(this._onFilmsModelChange);
+    this._moviesModel.addObserver(this._onFilmsModelChange);
 
     this._filterComponent = new FilterView(this._getFilters(), this._model.getFilter());
     this._filterComponent.setFilterClickHandler(this._filterClickHandler);
@@ -43,20 +43,23 @@ export default class FilterPresenter {
     }
     this._model.setFilter(filterName);
     if (this._isStatsOpen) {
+
       this._onFilterClick();
       this._isStatsOpen = false;
     }
 
   }
   _statsClickHandler() {
-    if (!this._isStatsOpen) {
-      this._onStatsClick();
-      this._isStatsOpen = true;
+    if (this._isStatsOpen) {
+      return;
     }
+    this._onStatsClick();
+    this._isStatsOpen = true;
+    this._model.setFilter(null);
 
   }
   _getFilters() {
-    const films = this._filmsModel.getFilms().slice();
+    const films = this._moviesModel.getFilms().slice();
     return getFilterItems(films.slice());
   }
 }

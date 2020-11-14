@@ -9,6 +9,8 @@ import FilmsListRatedView from "../view/films-list-extra-rated";
 import FilmsListCommentedView from "../view/films-list-extra-commented";
 import PopupPresenter from "./popup-presenter";
 import FilmsListPresenter from "./films-list-presenter";
+import LoadinfTitleView from "../view/films-title-loading";
+import {getFilterFilms} from "../utils/filters";
 
 const EXTRA_CARD_COUNT = 2;
 const SHOWN_CARDS_COUNT = 5;
@@ -21,12 +23,7 @@ const userCommentAction = {
   DELETE: `delete`,
   ADD: `add`
 };
-const FilterType = {
-  ALL: `all`,
-  WATCHLIST: `watchlist`,
-  HISTORY: `history`,
-  FAVORITES: `favorites`
-};
+
 const filmsFilterType = {
   isFavorite: `favorites`,
   isWatched: `history`,
@@ -34,7 +31,8 @@ const filmsFilterType = {
 };
 
 export default class MovieList {
-  constructor(movieListContainer, popupContainer, moviesModel, commentsModel, filtersModel) {
+  constructor(movieListContainer, popupContainer, moviesModel, commentsModel, filtersModel, api) {
+    this._api = api;
     this._moviesModel = moviesModel;
     this._commentsModel = commentsModel;
     this._filtersModel = filtersModel;
@@ -49,6 +47,7 @@ export default class MovieList {
     this._filmsNoTitle = new TitleNoFilmsView();
     this._filmsListRated = new FilmsListRatedView();
     this._filmsListCommented = new FilmsListCommentedView();
+    this._loadingTitle = new LoadinfTitleView();
     this._sort = new SortView();
     this._sortClickHandler = this._sortClickHandler.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
@@ -64,28 +63,13 @@ export default class MovieList {
     this._filmsCommentedPresenter = new FilmsListPresenter(this._filmsListCommented, EXTRA_CARD_COUNT, this._getCommentedFilms, this._onDataChange, this._onOpenPopupClick);
     this._filmsRatedPresenter = new FilmsListPresenter(this._filmsListRated, EXTRA_CARD_COUNT, this._getRatedFilms, this._onDataChange, this._onOpenPopupClick);
     this._filmsListPresenter = new FilmsListPresenter(this._filmsList, SHOWN_CARDS_COUNT, this._getFilms, this._onDataChange, this._onOpenPopupClick);
-
+    this._isLoading = true;
   }
+
   _getFilms() {
     const filter = this._filtersModel.getFilter();
     const films = this._moviesModel.getFilms();
-    const getFilterFilms = (filterType, filmsForFilter) => {
-      switch (filterType) {
-        case FilterType.ALL:
-          filmsForFilter = filmsForFilter.slice();
-          break;
-        case FilterType.HISTORY:
-          filmsForFilter = filmsForFilter.slice().filter((it) => it.isWatched);
-          break;
-        case FilterType.FAVORITES:
-          filmsForFilter = filmsForFilter.slice().filter((it) => it.isFavorite);
-          break;
-        case FilterType.WATCHLIST:
-          filmsForFilter = filmsForFilter.slice().filter((it) => it.isInWatchlist);
-          break;
-      }
-      return filmsForFilter;
-    };
+
     const filteredFilms = getFilterFilms(filter, films);
 
     switch (this._currentSortType) {
@@ -97,6 +81,8 @@ export default class MovieList {
         return filteredFilms.slice();
     }
     return filteredFilms;
+
+
   }
   _getCommentedFilms() {
     return this._moviesModel.getFilms().slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, EXTRA_CARD_COUNT);
@@ -113,9 +99,12 @@ export default class MovieList {
     this._renderFilmsBoard();
     this._renderFilmsList();
     this._renderFilmsTitle();
-    this._filmsListPresenter.init();
-    this._renderMostCommentedFilms();
-    this._renderTopRatedFilms();
+    if (!this._isLoading) {
+      this._filmsListPresenter.init();
+      this._renderMostCommentedFilms();
+      this._renderTopRatedFilms();
+    }
+
   }
   destroy() {
     this._moviesModel.removeObserver(this._onFilmModelChange);
@@ -133,6 +122,7 @@ export default class MovieList {
 
     this._currentSortType = SortType.DEFAULT;
   }
+
 
   _sortClickHandler(sortType) {
     if (this._currentSortType === sortType) {
@@ -153,38 +143,61 @@ export default class MovieList {
     this._filmsCommentedPresenter.updateFilms(newFilmData, id);
   }
 
-  _onDataChange(newFilmData, update) {
-    this._moviesModel.updateFilm(newFilmData, update);
+  _onDataChange(newFilmData, update, onError) {
+    this._api.updateFilm(newFilmData)
+    .then((data) => this._moviesModel.updateFilm(data, update))
+    .catch(() => onError());
   }
 
-  _onCommentChange(actionType, idFilm, idComment, newData) {
+  _onCommentChange(actionType, film, idComment, newComment, onError, onSubmitSuccess) {
     switch (actionType) {
       case userCommentAction.DELETE:
-        this._commentsModel.deleteComment(idComment, idFilm);
+        this._api.deleteComment(idComment)
+        .then(this._commentsModel.deleteComment(idComment))
+        .then(() => this._moviesModel.updateFilm(film))
+        .catch(() => onError(idComment));
         break;
       case userCommentAction.ADD:
-        this._commentsModel.addComment(newData, idFilm);
+        this._api.addComment(film.id, newComment)
+        .then((data) => {
+          this._commentsModel.updateComments(data.comments);
+          this._moviesModel.updateFilm(data.movie);
+        })
+        .then(onSubmitSuccess())
+
+        .catch(() => onError());
         break;
     }
   }
 
   _onCommentModelChange(id) {
-    const filmData = this._moviesModel.getFilms().slice().find((it) => it.id === id);
-    this._updateFilms(filmData, id);
-    this._popupPresenter.update(null, true);
+    const filmData = this._moviesModel.getFilms().find((it) => it.id === id);
+    this._popupPresenter.init(filmData);
   }
 
-  _onFilmModelChange(updatedData, update) {
-    if (this._popupPresenter.isPopup) {
-      this._popupPresenter.update(updatedData, false);
-    }
-    this._updateFilms(updatedData, updatedData.id);
+  _onFilmModelChange(actionType, updatedData, update) {
+    switch (actionType) {
+      case `init`:
+        this._isLoading = false;
+        remove(this._loadingTitle);
+        this._filmsListPresenter.init();
+        this._renderMostCommentedFilms();
+        this._renderTopRatedFilms();
+        break;
+      case `update`:
+        if (this._popupPresenter.isPopup) {
+          this._popupPresenter.update(updatedData);
+        }
+        this._updateFilms(updatedData, updatedData.id);
 
-    const updateFieldName = Object.keys(update)[0];
-    if (!update[updateFieldName] && filmsFilterType[updateFieldName] === this._filtersModel.getFilter()) {
-      this._filmsListPresenter.updateList();
-      this._removeTitle();
-      this._renderFilmsTitle();
+        const updateFieldName = Object.keys(update)[0];
+        if (!update[updateFieldName] && filmsFilterType[updateFieldName] === this._filtersModel.getFilter()) {
+          this._filmsListPresenter.updateList();
+          this._removeTitle();
+          this._renderFilmsTitle();
+        }
+        break;
+
     }
   }
 
@@ -199,7 +212,11 @@ export default class MovieList {
 
   _onOpenPopupClick(film) {
     this._popupPresenter.resetPopupView();
-    this._popupPresenter.init(film);
+    this._api.getComments(film.id)
+
+    .then((comments) => this._commentsModel.setComments(comments, film.id))
+    .catch(() => this._commentsModel.setComments([], film.id));
+
   }
 
   _renderFilmsList() {
@@ -211,10 +228,15 @@ export default class MovieList {
   }
 
   _renderFilmsTitle() {
-    if (!this._getFilms().length) {
+    if (this._isLoading) {
+      render(this._filmsList, this._loadingTitle, RenderPosition.AFTERBEGIN);
+      return;
+    }
+    if (!this._moviesModel.getFilms().length) {
       render(this._filmsList, this._filmsNoTitle, RenderPosition.AFTERBEGIN);
       return;
     }
+
     render(this._filmsList, this._filmsTitle, RenderPosition.AFTERBEGIN);
   }
   _removeTitle() {
